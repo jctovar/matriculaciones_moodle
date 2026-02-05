@@ -42,6 +42,9 @@ MANIFEST
 *~
 .DS_Store
 
+# Claude Code
+.claude/
+
 # Logs
 *.log
 firebase-debug.log
