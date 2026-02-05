@@ -48,6 +48,11 @@ MANIFEST
 # Logs
 *.log
 firebase-debug.log
+matriculaciones_*.log
+
+# Documentation with sensitive info
+PLAN.md
+PLAN_*.md
 
 # UV
 uv.lock
