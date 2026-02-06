@@ -77,15 +77,15 @@ class PocketBaseClient:
                 logger.error(f"Falló autenticación en todos los endpoints: {error_summary}")
                 raise PocketBaseError(f"No se pudo autenticar con ningún endpoint: {error_summary}")
 
-    async def get_inscripciones(self) -> list[Inscripcion]:
-        """Obtiene todas las inscripciones de la vista reporte_inscripciones."""
+    async def get_inscripciones(self, collection: str = "reporte_inscripciones") -> list[Inscripcion]:
+        """Obtiene todas las inscripciones de la vista especificada."""
         if not self.token:
             logger.error("Intento de obtener inscripciones sin autenticación")
             raise PocketBaseError("No autenticado. Llame a authenticate() primero.")
 
-        logger.info("Descargando inscripciones de PocketBase")
+        logger.info(f"Descargando inscripciones de PocketBase (colección: {collection})")
         per_page = 500
-        url = f"{self.base_url}/api/collections/reporte_inscripciones/records"
+        url = f"{self.base_url}/api/collections/{collection}/records"
         headers = {"Authorization": f"Bearer {self.token}"}
 
         async with httpx.AsyncClient(

@@ -6,6 +6,7 @@ import sys
 from datetime import datetime
 
 from rich.console import Console
+from rich.prompt import Prompt
 from rich.table import Table
 from rich.logging import RichHandler
 
@@ -15,6 +16,21 @@ from .pocketbase import PocketBaseClient
 from .moodle import MoodleClient, MoodleError
 
 console = Console()
+
+COLECCIONES = {
+    "1": ("ordinario", "reporte_inscripciones"),
+    "2": ("extraordinarios", "reporte_extraordinarios"),
+}
+
+
+def elegir_tipo_inscripcion() -> tuple[str, str]:
+    console.print("\n[bold]Tipo de inscripción:[/bold]")
+    console.print("  [cyan]1[/cyan] - Ordinario")
+    console.print("  [cyan]2[/cyan] - Extraordinarios")
+    opcion = Prompt.ask("\nSeleccione una opción", choices=["1", "2"], default="1")
+    nombre, coleccion = COLECCIONES[opcion]
+    console.print(f"\nSeleccionado: [bold]{nombre}[/bold]\n")
+    return nombre, coleccion
 
 
 def setup_logging(log_file: str = "matriculaciones.log") -> None:
@@ -250,9 +266,13 @@ async def run() -> int:
     log_file = f"matriculaciones_{timestamp}.log"
     setup_logging(log_file)
 
-    console.print("[bold blue]Matriculaciones Moodle[/bold blue]\n")
+    console.print("[bold blue]Matriculaciones Moodle[/bold blue]")
+
+    tipo_nombre, coleccion = elegir_tipo_inscripcion()
+
     logger.info("="*80)
-    logger.info("Iniciando proceso de matriculaciones")
+    logger.info(f"Iniciando proceso de matriculaciones ({tipo_nombre})")
+    logger.info(f"Colección: {coleccion}")
     logger.info(f"Archivo de log: {log_file}")
     logger.info("="*80)
 
@@ -281,7 +301,7 @@ async def run() -> int:
     # 3. Descargar inscripciones
     with console.status("[bold green]Descargando inscripciones..."):
         try:
-            inscripciones = await pb.get_inscripciones()
+            inscripciones = await pb.get_inscripciones(coleccion)
             console.print(
                 f"[green]✓[/green] {len(inscripciones)} inscripciones descargadas"
             )
